@@ -54,14 +54,4 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx'
     //GOOGLE PLAY SERVICES
     implementation 'com.google.android.gms:play-services-auth:20.2.0'
-    //RETROFIT
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    //GSON CONVERTER
-    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-    //OK HTTP - HTTP CLIENT
-    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
-    // OK HTTP LOGGING INTERCEPTOR
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
-    //COIL
-    implementation("io.coil-kt:coil:2.0.0-rc02")
 }

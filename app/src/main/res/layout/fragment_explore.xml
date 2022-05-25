@@ -8,6 +8,7 @@
         android:id="@+id/app_bar_explore"/>
 
     <TextView
+        android:id="@+id/explore_recycler_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/neutrals_n_lv_2"
@@ -17,6 +18,7 @@
     />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/explore_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
