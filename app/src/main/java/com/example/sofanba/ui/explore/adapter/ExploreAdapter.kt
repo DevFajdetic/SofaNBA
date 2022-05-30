@@ -5,27 +5,39 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import coil.size.Size
+import coil.transform.RoundedCornersTransformation
 import com.example.sofanba.R
 import com.example.sofanba.data.model.Player
 import com.example.sofanba.data.model.Team
+import com.example.sofanba.data.model.Teams
 import com.example.sofanba.databinding.CardExplorePlayerBinding
 import com.example.sofanba.databinding.CardExploreTeamBinding
+import com.example.sofanba.utils.TeamsHelper.Companion.getTeamColorById
+import com.example.sofanba.utils.TeamsHelper.Companion.getTeamImageById
 
 const val PLAYERS_VIEW = 0
 const val TEAMS_VIEW = 1
 
-class ExploreAdapter (
+class ExploreAdapter(
     private val context: Context,
     private val exploreItemsList: ArrayList<Any>
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : Filterable, RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    private var itemsFiltered: ArrayList<Any> = arrayListOf()
 
     @SuppressLint("NotifyDataSetChanged")
     fun updateList(newList: List<Any>?) {
         exploreItemsList.clear()
+        itemsFiltered.clear()
         if (newList != null) {
             exploreItemsList.addAll(newList)
+            itemsFiltered.addAll(exploreItemsList)
         }
         notifyDataSetChanged()
     }
@@ -40,12 +52,12 @@ class ExploreAdapter (
 
     //Returns the view type of the item at position for the purposes of view recycling.
     override fun getItemViewType(position: Int): Int {
-        if (exploreItemsList[position] is Player) {
-            return PLAYERS_VIEW;
-        } else if (exploreItemsList[position] is Team) {
-            return TEAMS_VIEW;
+        if (itemsFiltered[position] is Player) {
+            return PLAYERS_VIEW
+        } else if (itemsFiltered[position] is Team) {
+            return TEAMS_VIEW
         }
-        return -1;
+        return -1
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -86,20 +98,23 @@ class ExploreAdapter (
     }
 
     private fun configurePlayerViewHolder(holder: PlayersViewHolder, position: Int) {
-        val player = exploreItemsList[position] as Player
+        val player = itemsFiltered[position] as Player
 
-        holder.binding.imageTeamLogo.load(
-            if(position % 3 == 0) {
-                R.drawable.ic_player_1_small
-            } else if (position % 3 == 1) {
-                R.drawable.ic_player_2_small
-            } else {
-                R.drawable.ic_player_3_small
+        holder.binding.imagePlayer.load(
+            when (position % 3) {
+                0 -> R.drawable.ic_player_1_small
+                1 -> R.drawable.ic_player_2_small
+                else -> {
+                    R.drawable.ic_player_3_small
+                }
             }
-        )
+        ) {
+            transformations(RoundedCornersTransformation(16F))
+        }
+
         holder.binding.textPlayerName.text = player.formattedFullName
         holder.binding.textTeamAbbr.text = player.team.abbreviation
-        holder.binding.imageTeamFavorite.load(R.drawable.ic_star_outline)
+        holder.binding.imagePlayerFavorite.load(R.drawable.ic_star_outline)
 
         /*holder.binding.root.setOnClickListener {
             val intent = Intent(context, CityItemActivity::class.java)
@@ -107,14 +122,19 @@ class ExploreAdapter (
             context.startActivity(intent)
         }*/
 
-        holder.binding.imageTeamFavorite.setOnClickListener {
-            holder.binding.imageTeamFavorite.load(R.drawable.ic_star_full)
+        holder.binding.imagePlayerFavorite.setOnClickListener {
+            holder.binding.imagePlayerFavorite.load(R.drawable.ic_star_full)
         }
     }
 
     private fun configureTeamViewHolder(holder: TeamsViewHolder, position: Int) {
-        val team = exploreItemsList[position] as Team
+        val team = itemsFiltered[position] as Team
 
+        holder.binding.imageTeamLogo.load(getTeamImageById(team.id)) {
+            size(Size.ORIGINAL)
+        }
+        holder.binding.imageTeamLogo.backgroundTintList =
+            AppCompatResources.getColorStateList(context, getTeamColorById(team.id))
         holder.binding.textTeamName.text = team.full_name
         holder.binding.imageTeamFavorite.load(R.drawable.ic_star_outline)
 
@@ -127,6 +147,39 @@ class ExploreAdapter (
     }
 
     override fun getItemCount(): Int {
-        return exploreItemsList.size
+        return itemsFiltered.size
+    }
+
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val charString = constraint?.toString()?.lowercase() ?: ""
+                if (charString.isEmpty()) {
+                    itemsFiltered.clear()
+                    itemsFiltered.addAll(exploreItemsList)
+                } else {
+                    val filteredList = ArrayList<Any>()
+                    exploreItemsList
+                        .filter {
+                            it as Team
+                            (it.name.lowercase().contains(charString))
+                        }
+                        .forEach { filteredList.add(it as Team) }
+                    itemsFiltered = filteredList
+                }
+                return FilterResults().apply { values = itemsFiltered }
+            }
+
+            @Suppress("UNCHECKED_CAST")
+            @SuppressLint("NotifyDataSetChanged")
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+
+                itemsFiltered = if (results?.values == null)
+                    ArrayList()
+                else
+                    results.values as ArrayList<Any>
+                notifyDataSetChanged()
+            }
+        }
     }
 }

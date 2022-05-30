@@ -8,12 +8,16 @@
     android:background="@drawable/bg_white_rounded"
     android:orientation="horizontal">
 
+
     <ImageView
         android:id="@+id/image_team_logo"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_gravity="center"
         android:layout_margin="8dp"
+        android:background="@drawable/bg_rounded_images"
+        android:backgroundTint="@color/team_celtics_primary"
+        android:scaleType="centerInside"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
