@@ -12,7 +12,7 @@
         tools:layout="@layout/fragment_explore" />
     <fragment
         android:id="@+id/favoritesFragment"
-        android:name="com.example.sofanba.FavoritesFragment"
+        android:name="com.example.sofanba.ui.favorite.view.FavoritesFragment"
         android:label="fragment_favorites"
         tools:layout="@layout/fragment_favorites" />
     <fragment

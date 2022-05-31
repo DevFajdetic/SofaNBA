@@ -1,5 +1,6 @@
 package com.example.sofanba.ui.explore.view
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,8 +17,13 @@ import com.example.sofanba.data.model.Team
 import com.example.sofanba.databinding.FragmentExploreBinding
 import com.example.sofanba.ui.explore.viewmodel.ExploreViewModel
 import com.example.weatherapp.adapters.ExploreAdapter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class ExploreFragment : Fragment() {
+class ExploreFragment : Fragment(), ExploreAdapter.ItemClickListener {
 
     //View binding
     private var _binding: FragmentExploreBinding? = null
@@ -109,6 +115,11 @@ class ExploreFragment : Fragment() {
 
         })
 
+
         return binding.root
+    }
+
+    override fun onItemClicked(item: Any) {
+        TODO("Not yet implemented")
     }
 }

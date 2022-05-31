@@ -1,14 +1,19 @@
 package com.example.sofanba.data.model
 
-import kotlin.math.roundToInt
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
 
+@Entity(tableName = "FavoritePlayer")
 data class Player(
     val first_name: String,
     val height_feet: Any?,
     val height_inches: Any?,
+    @PrimaryKey
     val id: Int,
     val last_name: String,
     val position: String,
+    @Ignore
     val team: Team,
     val weight_pounds: Any?
 ) {
