@@ -1,10 +1,22 @@
 package com.example.sofanba.utils
 
 import com.example.sofanba.R
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 
 class TeamsHelper {
     companion object {
+
+        fun convertDate(date: String): String? {
+            val inputFormatter: DateTimeFormatter =
+                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH)
+            val outputFormatter: DateTimeFormatter =
+                DateTimeFormatter.ofPattern("EEEE, dd MMM yyyy", Locale.ENGLISH)
+            val date: LocalDate = LocalDate.parse(date, inputFormatter)
+            return outputFormatter.format(date)
+        }
         fun getTeamImageById(id: Int?): Int {
             return when (id) {
                 1 -> R.drawable.ic_atlanta_hawks_logo

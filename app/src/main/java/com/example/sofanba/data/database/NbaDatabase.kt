@@ -4,9 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.sofanba.data.model.Player
+import com.example.sofanba.data.database.model.FavoritePlayer
+import com.example.sofanba.data.database.model.FavoriteTeam
 
-@Database(entities = [Player::class], version = 1, exportSchema = false)
+@Database(entities = [FavoritePlayer::class, FavoriteTeam::class], version = 1, exportSchema = false)
 abstract class NbaDatabase: RoomDatabase() {
     abstract fun PlayerDao(): PlayerDao
     abstract fun TeamDao(): TeamDao
