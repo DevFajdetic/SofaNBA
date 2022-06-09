@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".AboutActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/about"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:text="@string/about"
+        android:textAppearance="@style/HeadlineLargeNLv1Left"
+        android:textColor="@color/neutrals_n_lv_1"
+        app:layout_constraintBottom_toTopOf="@id/class_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+    <LinearLayout
+        android:id="@+id/class_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/logos_container"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/sofa_score_academy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:text="@string/sofascore_academy"
+            android:textAppearance="@style/HeadlineMediumNLv1Left"
+            android:textColor="@color/neutrals_n_lv_1"
+            app:layout_constraintBottom_toTopOf="@+id/class_2022"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/about" />
+
+        <TextView
+            android:id="@+id/class_2022"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:text="@string/class_2022"
+            android:textAppearance="@style/BodyLargeNLv1Left"
+            android:textColor="@color/neutrals_n_lv_1"
+            app:layout_constraintBottom_toTopOf="@+id/logos_container"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sofa_score_academy" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/logos_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:background="@drawable/bg_white_rounded"
+        android:backgroundTint="@color/surface_surface_2"
+        android:orientation="horizontal"
+        android:paddingVertical="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/app_name_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/about">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:src="@drawable/ic_sofascore" />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_android" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/app_name_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/app_credit_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/logos_container">
+
+        <TextView
+            android:id="@+id/app_name_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name_label"
+            android:textAllCaps="true"
+            android:textAppearance="@style/AssistiveNLv2Left"
+            android:textColor="@color/neutrals_n_lv_2" />
+
+        <TextView
+            android:id="@+id/app_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textAppearance="@style/BodyLargeNLv1Left"
+            android:textColor="@color/neutrals_n_lv_1" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/app_credit_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/app_developer_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/logos_container">
+
+        <TextView
+            android:id="@+id/api_credit_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/about"
+            android:textAppearance="@style/AssistiveNLv2Left"
+            android:textColor="@color/neutrals_n_lv_1" />
+
+        <TextView
+            android:id="@+id/api_credit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/about"
+            android:textAppearance="@style/BodyLargeNLv1Left"
+            android:textColor="@color/neutrals_n_lv_1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/app_developer_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/app_credit_container">
+
+        <TextView
+            android:id="@+id/developer_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/about"
+            android:textAppearance="@style/AssistiveNLv2Left"
+            android:textColor="@color/neutrals_n_lv_1" />
+
+        <TextView
+            android:id="@+id/developer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/about"
+            android:textAppearance="@style/BodyLargeNLv1Left"
+            android:textColor="@color/neutrals_n_lv_1" />
+    </LinearLayout>
+</LinearLayout>
