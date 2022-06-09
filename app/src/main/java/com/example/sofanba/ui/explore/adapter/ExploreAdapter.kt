@@ -1,26 +1,25 @@
-package com.example.weatherapp.adapters
+package com.example.sofanba.ui.explore.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.Filter
 import android.widget.Filterable
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.size.Size
 import coil.transform.RoundedCornersTransformation
-import com.example.sofanba.MainActivity
 import com.example.sofanba.R
-import com.example.sofanba.data.model.Player
-import com.example.sofanba.data.model.Team
-import com.example.sofanba.data.model.Teams
+import com.example.sofanba.data.api.model.Player
+import com.example.sofanba.data.api.model.Team
+import com.example.sofanba.data.database.model.FavoritePlayer
+import com.example.sofanba.data.database.model.FavoriteTeam
 import com.example.sofanba.databinding.CardExplorePlayerBinding
 import com.example.sofanba.databinding.CardExploreTeamBinding
-import com.example.sofanba.ui.explore.viewmodel.ExploreViewModel
 import com.example.sofanba.utils.TeamsHelper.Companion.getTeamColorById
 import com.example.sofanba.utils.TeamsHelper.Companion.getTeamImageById
 
@@ -29,15 +28,17 @@ const val TEAMS_VIEW = 1
 
 class ExploreAdapter(
     private val context: Context,
-    private val exploreItemsList: ArrayList<Any>
+    private val exploreItemsList: ArrayList<Any>,
+    val itemClickListener: ItemClickListener,
+    private val isItemFavorite: (Any) -> Boolean,
 ) : Filterable, RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var itemsFiltered: ArrayList<Any> = arrayListOf()
-    private val itemClickListener: ItemClickListener? = null
-    var isFavorite = false
     interface ItemClickListener {
         fun onItemClicked(item: Any)
     }
+
+    private var itemsFiltered: ArrayList<Any> = arrayListOf()
+
 
     @SuppressLint("NotifyDataSetChanged")
     fun updateList(newList: List<Any>?) {
@@ -107,7 +108,16 @@ class ExploreAdapter(
 
     private fun configurePlayerViewHolder(holder: PlayersViewHolder, position: Int) {
         val player = itemsFiltered[position] as Player
-
+        val favPlayer = FavoritePlayer(
+            player.first_name,
+            player.height_feet,
+            player.height_inches,
+            player.id,
+            player.last_name,
+            player.position,
+            player.weight_pounds,
+            position
+        )
         holder.binding.imagePlayer.load(
             when (position % 3) {
                 0 -> R.drawable.ic_player_1_small
@@ -122,22 +132,23 @@ class ExploreAdapter(
 
         holder.binding.textPlayerName.text = player.formattedFullName
         holder.binding.textTeamAbbr.text = player.team.abbreviation
-        holder.binding.imagePlayerFavorite.load(R.drawable.ic_star_outline)
-
-        /*holder.binding.root.setOnClickListener {
-            val intent = Intent(context, CityItemActivity::class.java)
-            intent.putExtra("City", locationInfo)
-            context.startActivity(intent)
-        }*/
-
-        holder.binding.imagePlayerFavorite.setOnClickListener{
-            itemClickListener?.onItemClicked(player)
-            holder.binding.imagePlayerFavorite.load(R.drawable.ic_star_outline)
+        holder.binding.imagePlayerFavorite.setOnClickListener {
+            itemClickListener.onItemClicked(favPlayer)
         }
     }
 
     private fun configureTeamViewHolder(holder: TeamsViewHolder, position: Int) {
         val team = itemsFiltered[position] as Team
+        val favTeam = FavoriteTeam(
+            team.abbreviation,
+            team.city,
+            team.conference,
+            team.division,
+            team.full_name,
+            team.id,
+            team.name,
+            position
+        )
 
         holder.binding.imageTeamLogo.load(getTeamImageById(team.id)) {
             size(Size.ORIGINAL)
@@ -145,17 +156,13 @@ class ExploreAdapter(
         holder.binding.imageTeamLogo.backgroundTintList =
             AppCompatResources.getColorStateList(context, getTeamColorById(team.id))
         holder.binding.textTeamName.text = team.full_name
-        holder.binding.imageTeamFavorite.load(R.drawable.ic_star_outline)
-
-        /*
-        holder.binding.root.setOnClickListener {
-            val intent = Intent(context, CityItemActivity::class.java)
-            intent.putExtra("City", locationInfo)
-            context.startActivity(intent)
-        }*/
-        holder.binding.imageTeamFavorite.setOnClickListener{
-            itemClickListener?.onItemClicked(team)
-            holder.binding.imageTeamFavorite.load(R.drawable.ic_star_outline)
+        holder.binding.imageTeamFavorite.load(
+            if(isItemFavorite(favTeam)) {
+                R.drawable.ic_star_full
+            } else R.drawable.ic_star_outline
+        )
+        holder.binding.imageTeamFavorite.setOnClickListener {
+            itemClickListener.onItemClicked(favTeam)
         }
     }
 
@@ -163,6 +170,7 @@ class ExploreAdapter(
         return itemsFiltered.size
     }
 
+    // FILTERING TEAMS WITH SEARCH
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
@@ -175,7 +183,7 @@ class ExploreAdapter(
                     exploreItemsList
                         .filter {
                             it as Team
-                            (it.name.lowercase().contains(charString))
+                            (it.full_name.lowercase().contains(charString))
                         }
                         .forEach { filteredList.add(it as Team) }
                     itemsFiltered = filteredList

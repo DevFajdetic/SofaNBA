@@ -1,27 +1,24 @@
 package com.example.sofanba.ui.explore.view
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.SearchView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.sofanba.R
-import com.example.sofanba.data.model.Player
-import com.example.sofanba.data.model.Team
+import com.example.sofanba.data.api.model.Player
+import com.example.sofanba.data.api.model.Team
+import com.example.sofanba.data.database.model.FavoritePlayer
+import com.example.sofanba.data.database.model.FavoriteTeam
 import com.example.sofanba.databinding.FragmentExploreBinding
 import com.example.sofanba.ui.explore.viewmodel.ExploreViewModel
-import com.example.weatherapp.adapters.ExploreAdapter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.sofanba.ui.explore.adapter.ExploreAdapter
+import com.example.sofanba.utils.Constants
+import com.example.sofanba.utils.Status
 
 class ExploreFragment : Fragment(), ExploreAdapter.ItemClickListener {
 
@@ -29,32 +26,22 @@ class ExploreFragment : Fragment(), ExploreAdapter.ItemClickListener {
     private var _binding: FragmentExploreBinding? = null
     private val binding get() = _binding!!
 
-    //Spinner
-    private val spinnerItems = arrayOf("Players", "Teams")
-
-    //Adapter
-    private val adapter by lazy {
-        ExploreAdapter(
-            requireContext(),
-            arrayListOf(),
-        )
-    }
-
-    //View Models
-    private val viewModel: ExploreViewModel by activityViewModels()
+    private val spinnerItems = arrayOf(Constants.PLAYERS, Constants.TEAMS)
+    private lateinit var adapter: ExploreAdapter
+    private lateinit var spinnerAdapter: ArrayAdapter<String>
+    private lateinit var viewModel: ExploreViewModel
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentExploreBinding.inflate(inflater, container, false)
+        val view = binding.root
 
-        binding.exploreRecycler.layoutManager = LinearLayoutManager(requireContext())
-        binding.exploreRecycler.adapter = adapter
-
-        val spinnerAdapter = ArrayAdapter(requireContext(), R.layout.spinner_item, spinnerItems)
-        spinnerAdapter.setDropDownViewResource(R.layout.spinner_item)
-        binding.appBarExplore.exploreSpinner.adapter = spinnerAdapter
+        setupUI()
+        setupViewModel()
+        setupObserver()
 
         binding.appBarExplore.exploreSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
@@ -65,29 +52,17 @@ class ExploreFragment : Fragment(), ExploreAdapter.ItemClickListener {
                     id: Long
                 ) {
                     val selectedSpinnerItem = spinnerItems[position]
-                    if (selectedSpinnerItem == getString(R.string.teams)) {
+                    if (selectedSpinnerItem == Constants.TEAMS) {
                         binding.exploreRecyclerTitle.setText(R.string.all_teams)
-                        viewModel.allTeamsResponse.observe(viewLifecycleOwner) { response ->
-                            adapter.updateList(
-                                response.data as ArrayList<Team>
-                            )
-                        }
                         viewModel.getAllTeams()
-                    } else if (selectedSpinnerItem == getString(R.string.players)) {
+                    } else if (selectedSpinnerItem == Constants.PLAYERS) {
                         binding.exploreRecyclerTitle.setText(R.string.all_players)
-                        viewModel.allPlayersReponse.observe(viewLifecycleOwner) { response ->
-                            adapter.updateList(
-                                response.data as ArrayList<Player>,
-                            )
-                        }
                         viewModel.getAllPlayers()
                     }
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
-
                 }
-
             }
 
         binding.appBarExplore.exploreSearch.setOnQueryTextListener(object :
@@ -96,11 +71,6 @@ class ExploreFragment : Fragment(), ExploreAdapter.ItemClickListener {
                 if (binding.appBarExplore.exploreSpinner.selectedItem == getString(R.string.teams)) {
                     adapter.filter.filter(query)
                 } else if (binding.appBarExplore.exploreSpinner.selectedItem == getString(R.string.players)) {
-                    viewModel.allPlayersReponse.observe(viewLifecycleOwner) { response ->
-                        adapter.updateList(
-                            response.data as ArrayList<Player>,
-                        )
-                    }
                     viewModel.getAllPlayers(search = query)
                 }
                 return false
@@ -112,14 +82,87 @@ class ExploreFragment : Fragment(), ExploreAdapter.ItemClickListener {
                 }
                 return false
             }
-
         })
 
+        return view
+    }
 
-        return binding.root
+    private fun setupObserver() {
+        viewModel.allTeamsResponse.observe(viewLifecycleOwner) { response ->
+            when (response.status) {
+                Status.SUCCESS -> {
+                    binding.progressBar.visibility = android.view.View.GONE
+                    adapter.updateList(
+                        response.data?.data as ArrayList<Team>
+                    )
+                    binding.exploreRecycler.visibility = android.view.View.VISIBLE
+                }
+                Status.LOADING -> {
+                    binding.progressBar.visibility = android.view.View.VISIBLE
+                    binding.exploreRecycler.visibility = android.view.View.GONE
+                }
+                Status.ERROR -> {
+                    //Handle Error
+                    binding.progressBar.visibility = android.view.View.GONE
+                    Toast.makeText(requireContext(), response.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+        viewModel.allPlayersReponse.observe(viewLifecycleOwner) { response ->
+            when (response.status) {
+                Status.SUCCESS -> {
+                    binding.progressBar.visibility = android.view.View.GONE
+                    adapter.updateList(
+                        response.data?.data as ArrayList<Player>
+                    )
+                    binding.exploreRecycler.visibility = android.view.View.VISIBLE
+                }
+                Status.LOADING -> {
+                    binding.progressBar.visibility = android.view.View.VISIBLE
+                    binding.exploreRecycler.visibility = android.view.View.GONE
+                }
+                Status.ERROR -> {
+                    //Handle Error
+                    binding.progressBar.visibility = android.view.View.GONE
+                    Toast.makeText(requireContext(), response.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun setupViewModel() {
+        viewModel = ExploreViewModel()
+    }
+
+    private fun setupUI() {
+        binding.exploreRecycler.layoutManager = LinearLayoutManager(requireContext())
+        adapter = ExploreAdapter(requireContext(), arrayListOf(), itemClickListener = this, isItemFavorite = { item ->
+            var resp = false
+            if (item is FavoriteTeam) {
+               resp = viewModel.checkFavoriteTeam(requireContext(), item) == true
+            } else if(item is FavoritePlayer) {
+                resp = viewModel.checkFavoritePlayer(requireContext(), item) == true
+            }
+            return@ExploreAdapter resp
+        })
+        spinnerAdapter = ArrayAdapter(requireContext(), R.layout.spinner_item, spinnerItems)
+        spinnerAdapter.setDropDownViewResource(R.layout.spinner_item)
+        binding.appBarExplore.exploreSpinner.adapter = spinnerAdapter
+        binding.exploreRecycler.adapter = adapter
     }
 
     override fun onItemClicked(item: Any) {
-        TODO("Not yet implemented")
+        if (item is FavoritePlayer) {
+            val checkFav = viewModel.checkFavoritePlayer(requireContext(), item)
+            if (checkFav == true) {
+                viewModel.removeFavoritePlayer(requireContext(), item)
+            } else if (checkFav == false) {
+                viewModel.insertFavoritePlayer(requireContext(), item)
+            }
+        } else if (item is FavoriteTeam) {
+            if (viewModel.checkFavoriteTeam(requireContext(), item) == true) {
+                viewModel.removeFavoriteTeam(requireContext(), item)
+            } else viewModel.insertFavoriteTeam(requireContext(), item)
+        }
     }
 }
