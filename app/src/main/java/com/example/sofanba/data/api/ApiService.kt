@@ -1,6 +1,6 @@
 package com.example.sofanba.data.api
 
-import com.example.sofanba.data.model.*
+import com.example.sofanba.data.api.model.*
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -34,5 +34,18 @@ interface ApiService {
     suspend fun getSpecificTeam(
         @Path("id") id: Int,
     ): Team
+
+    @GET("games")
+    suspend fun getAllGames(
+        @Query("page") page: Int?,
+        @Query("per_page") perPage: Int?,
+        @Query("dates[]") dates: List<String>?,
+        @Query("seasons[]") seasons: List<Int>?,
+        @Query("team_ids") teamIds: List<String>?,
+        @Query("postseason") postSeason: Boolean?,
+        @Query("start_date") startDate: String?,
+        @Query("end_date") endDate: String?,
+    ): Games
+
 
 }
