@@ -6,26 +6,35 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.size.Size
 import coil.transform.RoundedCornersTransformation
 import com.example.sofanba.R
-import com.example.sofanba.data.model.Player
-import com.example.sofanba.data.model.Team
+import com.example.sofanba.data.api.model.Player
+import com.example.sofanba.data.api.model.Team
+import com.example.sofanba.data.database.model.FavoritePlayer
+import com.example.sofanba.data.database.model.FavoriteTeam
 import com.example.sofanba.databinding.CardExplorePlayerBinding
 import com.example.sofanba.databinding.CardExploreTeamBinding
+import com.example.sofanba.ui.explore.adapter.ExploreAdapter
 import com.example.sofanba.utils.TeamsHelper
-import com.example.weatherapp.adapters.PLAYERS_VIEW
-import com.example.weatherapp.adapters.TEAMS_VIEW
+import com.example.sofanba.ui.explore.adapter.PLAYERS_VIEW
+import com.example.sofanba.ui.explore.adapter.TEAMS_VIEW
+import com.example.sofanba.ui.favorite.helpers.ItemTouchHelperAdapter
+import com.example.sofanba.ui.favorite.helpers.OnStartDragListener
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class FavoriteAdapter(
     private val context: Context,
-    private val favoriteItemsList: ArrayList<Any>
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    private val favoriteItemsList: ArrayList<Any>,
+    val itemClickListener: ItemClickListener,
+    var listener:OnStartDragListener
+    ) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), ItemTouchHelperAdapter {
 
-    private val itemClickListener: ItemClickListener? = null
     interface ItemClickListener {
         fun onItemClicked(item: Any)
     }
@@ -49,9 +58,9 @@ class FavoriteAdapter(
 
     //Returns the view type of the item at position for the purposes of view recycling.
     override fun getItemViewType(position: Int): Int {
-        if (favoriteItemsList[position] is Player) {
+        if (favoriteItemsList[position] is FavoritePlayer) {
             return PLAYERS_VIEW
-        } else if (favoriteItemsList[position] is Team) {
+        } else if (favoriteItemsList[position] is FavoriteTeam) {
             return TEAMS_VIEW
         }
         return -1
@@ -95,7 +104,7 @@ class FavoriteAdapter(
     }
 
     private fun configurePlayerViewHolder(holder: PlayersViewHolder, position: Int) {
-        val player = favoriteItemsList[position] as Player
+        val player = favoriteItemsList[position] as FavoritePlayer
 
         holder.binding.imagePlayer.load(
             when (position % 3) {
@@ -109,24 +118,16 @@ class FavoriteAdapter(
             transformations(RoundedCornersTransformation(16F))
         }
 
-        holder.binding.textPlayerName.text = player.formattedFullName
+        holder.binding.textPlayerName.text = player.first_name
         holder.binding.textTeamAbbr.text = "aa"
         holder.binding.imagePlayerFavorite.load(R.drawable.ic_star_full)
-
-        /*holder.binding.root.setOnClickListener {
-            val intent = Intent(context, CityItemActivity::class.java)
-            intent.putExtra("City", locationInfo)
-            context.startActivity(intent)
-        }*/
-
-        holder.binding.imagePlayerFavorite.setOnClickListener{
-            itemClickListener?.onItemClicked(player)
-            holder.binding.imagePlayerFavorite.load(R.drawable.ic_star_outline)
+        holder.binding.imagePlayerFavorite.setOnClickListener {
+            itemClickListener.onItemClicked(player)
         }
     }
 
     private fun configureTeamViewHolder(holder: TeamsViewHolder, position: Int) {
-        val team = favoriteItemsList[position] as Team
+        val team = favoriteItemsList[position] as FavoriteTeam
 
         holder.binding.imageTeamLogo.load(TeamsHelper.getTeamImageById(team.id)) {
             size(Size.ORIGINAL)
@@ -134,21 +135,25 @@ class FavoriteAdapter(
         holder.binding.imageTeamLogo.backgroundTintList =
             AppCompatResources.getColorStateList(context, TeamsHelper.getTeamColorById(team.id))
         holder.binding.textTeamName.text = team.full_name
-        holder.binding.imageTeamFavorite.load(R.drawable.ic_star_outline)
-
-        /*
-        holder.binding.root.setOnClickListener {
-            val intent = Intent(context, CityItemActivity::class.java)
-            intent.putExtra("City", locationInfo)
-            context.startActivity(intent)
-        }*/
-        holder.binding.imageTeamFavorite.setOnClickListener{
-            itemClickListener?.onItemClicked(team)
-            holder.binding.imageTeamFavorite.load(R.drawable.ic_star_outline)
+        holder.binding.imageTeamFavorite.load(R.drawable.ic_star_full)
+        holder.binding.imageTeamFavorite.setOnClickListener {
+            itemClickListener.onItemClicked(team)
         }
     }
 
     override fun getItemCount(): Int {
         return favoriteItemsList.size
+    }
+
+    override fun onItemMove(fromPos: Int, toPos: Int): Boolean {
+        Collections.swap(favoriteItemsList, fromPos, toPos)
+        notifyItemMoved(fromPos, toPos)
+        return true
+    }
+
+
+    override fun onItemDismiss(position: Int) {
+        favoriteItemsList.removeAt(position)
+        notifyItemRemoved(position)
     }
 }

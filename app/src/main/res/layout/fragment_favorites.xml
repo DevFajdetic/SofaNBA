@@ -3,15 +3,50 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_surface_0"
+    android:orientation="vertical"
     tools:context=".ui.favorite.view.FavoritesFragment">
 
     <include
         android:id="@+id/app_bar_favorites"
         layout="@layout/toolbar_default" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/favorite_players_recycler"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/favorites_players_text"
+            style="@style/HeadlineSmallNLv2Left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="14dp"
+            android:layout_marginStart="16dp"
+            android:text="@string/players"
+            android:textColor="@color/neutrals_n_lv_2" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/favorite_players_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/favorites_teams_text"
+            style="@style/HeadlineSmallNLv2Left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="14dp"
+            android:layout_marginStart="16dp"
+            android:text="@string/teams"
+            android:textColor="@color/neutrals_n_lv_2" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/favorite_teams_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
 
 </LinearLayout>
