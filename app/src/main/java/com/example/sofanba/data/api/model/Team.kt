@@ -1,4 +1,4 @@
-package com.example.sofanba.data.model
+package com.example.sofanba.data.api.model
 
 data class Team(
     val abbreviation: String,
