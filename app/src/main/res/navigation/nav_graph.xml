@@ -17,12 +17,12 @@
         tools:layout="@layout/fragment_favorites" />
     <fragment
         android:id="@+id/seasonsFragment"
-        android:name="com.example.sofanba.SeasonsFragment"
+        android:name="com.example.sofanba.ui.seasons.view.SeasonsFragment"
         android:label="fragment_seasons"
         tools:layout="@layout/fragment_seasons" />
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.sofanba.SettingsFragment"
+        android:name="com.example.sofanba.ui.settings.SettingsFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" />
 </navigation>
